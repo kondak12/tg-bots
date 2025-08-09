@@ -1,35 +1,14 @@
 from models import Book, UserStats
 from repositories import BookRepository
 
-"""
-CREATE TABLE Persons (
-    name VARCHAR(128),
-    age INTEGER
-);
-"""
-
-"""
-USE database;
-
-UPDATE `Persons` SET `name` = 'Дмитрий'
-    WHERE `age` > 22;
-
-INSERT INTO `Persons` VALUES
-    ('Shaban', 17),
-    ('Ivan', 20);
-    
-DELETE FROM `Persons`
-    WHERE (`Persons`.`age` = 18 OR `Persons`.`name` = 'Шабан');
-
-"""
 
 class BookService:
 
     def __init__(self, book_repo: BookRepository):
         self._repo = book_repo
 
-    async def add_book(self, user_id: int, book: Book) -> Book:
-        return await self._repo.create_book(user_id, book.title, book.pages_count)
+    async def add_book(self, user_id: int, title: str, pages_count: int) -> Book:
+        return await self._repo.create_book(user_id, title, pages_count)
 
     async def increase_read_pages(self, user_id: int, book_id: int, pages: int) -> Book:
         return await self._repo.update_pages(user_id, book_id, pages)
@@ -42,12 +21,15 @@ class BookService:
 
 
 class StatsService:
-    def __init__(self, book_repo):
+    def __init__(self, book_repo: BookRepository):
         self._repo = book_repo
 
     async def get_stats(self, user_id: int) -> UserStats:
+        books = await self._repo.fetch_books(user_id)
+        total_pages = sum(book.pages_read for book in books)
+
         return UserStats(
             user_id,
-            self._repo.fetch_books(user_id),
-            self._repo.get_pages_read(user_id)
+            len(books),
+            total_pages
         )

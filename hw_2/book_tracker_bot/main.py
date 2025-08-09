@@ -1,18 +1,23 @@
-import asyncio
+import aiogram, asyncio
 
-from repositories import BookRepository
+from handlers import add_book, list_books, mark_read, remove_book, start
+from config import TOKEN, BOOK_REPOSITORY
 
 
 async def main():
+    bot = aiogram.Bot(token=TOKEN)
+    dp = aiogram.Dispatcher()
+    dp.include_routers(
+        add_book.router,
+        list_books.router,
+        mark_read.router,
+        remove_book.router,
+        start.router
+    )
 
-    book_repo = BookRepository("database.db")
-    await book_repo.init_tables()
+    await BOOK_REPOSITORY.init_tables()
 
-    print(await book_repo.fetch_books(user_id=1))
-
-    await book_repo.delete_book(user_id=1, book_id=1)
-
-    print(await book_repo.fetch_books(user_id=1))
+    await dp.start_polling(bot)
 
 
 if __name__ == "__main__":

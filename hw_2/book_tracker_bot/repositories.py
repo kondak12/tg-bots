@@ -16,7 +16,7 @@ class BookRepository:
             `title` TEXT NOT NULL,
             `pages_read` INTEGER DEFAULT 0,
             `pages_count` INTEGER NOT NULL,
-            `created_at` TEXT DEFAULT CURRENT_TIMESTAMP
+            `created_at` TEXT DEFAULT current_timestamp
         );
     """
         async with aiosqlite.connect(self.db_path) as db:
@@ -40,13 +40,12 @@ class BookRepository:
                 WHERE `title` = ?;
             """, [title]
         )
-            # row_book = {'user_id': 1, 'id': 1, ...}
             row_book = await cursor.fetchone()
             return Book(**dict(row_book))
 
-    async def update_pages(self, user_id, book_id: int, pages: int) -> Book:
+    async def update_pages(self, user_id: int, book_id: int, pages: int) -> Book:
         sql_command = """
-        UPDATE TABLE `Books` SET `pages_read` = ?
+        UPDATE `Books` SET `pages_read` = ?
             WHERE `id` = ? AND `user_id` = ?;
         """
 
